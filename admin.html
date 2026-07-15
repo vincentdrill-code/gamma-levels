@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMT Gamma — Admin niveaux</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232c; --border:#2a313c;
+    --txt:#e6edf3; --muted:#8b949e; --accent:#3b82f6; --green:#22c55e;
+    --red:#ef4444; --purple:#a855f7; --white:#f1f5f9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px}
+  h1{font-size:20px;margin:0 0 4px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+    margin:24px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:13px}
+  .wrap{max-width:960px;margin:0 auto}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:18px 20px;margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 3px}
+  input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--txt);
+    border-radius:7px;padding:8px 10px;font-size:14px;outline:none}
+  input:focus{border-color:var(--accent)}
+  .row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .row label{flex:0 0 130px;margin:0;font-size:13px;color:var(--txt)}
+  .dot{flex:0 0 10px;height:10px;border-radius:50%}
+  .field{margin-bottom:10px}
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  button{border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;
+    cursor:pointer;color:#fff;background:var(--panel2);border:1px solid var(--border);transition:.15s}
+  button:hover{filter:brightness(1.15)}
+  button.primary{background:var(--accent);border-color:var(--accent)}
+  button.ok{background:var(--green);border-color:var(--green)}
+  button.ghost{background:transparent}
+  .status{margin-top:14px;padding:10px 12px;border-radius:8px;font-size:13px;display:none}
+  .status.show{display:block}
+  .status.good{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.35)}
+  .status.bad{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.35)}
+  .status.info{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.35)}
+  details summary{cursor:pointer;color:var(--muted);font-size:13px}
+  pre{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;
+    overflow:auto;font-size:12px;color:#9fb4c7;max-height:260px}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  code{background:var(--panel2);padding:2px 6px;border-radius:4px;color:#cbd5e1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DMT Gamma — Panneau d'admin</h1>
+  <p class="sub">Saisis les niveaux, clique <b>Publier</b> : le fichier <code>gamma-levels.json</code> est mis à jour sur GitHub et tous les indicateurs des abonnés le récupèrent automatiquement.</p>
+
+  <!-- ============ CONFIG GITHUB ============ -->
+  <div class="card">
+    <h2>Connexion GitHub (à régler une seule fois)</h2>
+    <div class="grid">
+      <div class="field"><label>Utilisateur / organisation</label><input id="ghUser" value="vincentdrill-code"></div>
+      <div class="field"><label>Dépôt (repo)</label><input id="ghRepo" value="gamma-levels"></div>
+      <div class="field"><label>Branche</label><input id="ghBranch" value="main"></div>
+      <div class="field"><label>Chemin du fichier</label><input id="ghPath" value="gamma-levels.json"></div>
+    </div>
+    <div class="field"><label>Token GitHub (Personal Access Token, droit "Contents: write")</label>
+      <input id="ghToken" type="password" placeholder="ghp_xxx — stocké uniquement dans ce navigateur"></div>
+    <div class="btns">
+      <button class="ghost" onclick="saveCfg()">💾 Enregistrer la config</button>
+      <button class="ghost" onclick="loadFromGithub()">⬇️ Charger les niveaux actuels</button>
+    </div>
+    <p class="hint">Le token reste dans le <b>localStorage de ton navigateur</b> (rien n'est envoyé ailleurs que vers l'API GitHub). URL publique servie aux abonnés :<br>
+      <code id="rawUrl">—</code></p>
+  </div>
+
+  <!-- ============ COLLER LE JSON DE GAMMA FLOW 3 ============ -->
+  <div class="card">
+    <h2>Coller le résultat de « gamma flow 3 »</h2>
+    <p class="hint" style="margin-top:0">Copie le JSON produit par ton projet Claude.ai et colle-le ici, puis clique « Remplir ». Les champs en dessous se remplissent tout seuls.</p>
+    <textarea id="pasteBox" rows="6" placeholder='{ "date": "2026-06-29", "ES": { "call_wall": 5305, ... }, "NQ": { ... } }'
+      style="width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--txt);border-radius:7px;padding:10px;font:13px monospace;outline:none;resize:vertical"></textarea>
+    <div class="btns"><button class="primary" onclick="fillFromPaste()">↧ Remplir les champs depuis le JSON</button></div>
+  </div>
+
+  <!-- ============ NIVEAUX ============ -->
+  <div class="card">
+    <h2>Niveaux du jour</h2>
+    <div class="field" style="max-width:260px"><label>Date (affichée sur le graphe)</label><input id="date"></div>
+    <div class="grid" id="levelGrid"></div>
+  </div>
+
+  <div class="card">
+    <div class="btns">
+      <button class="primary" onclick="publish()">🚀 Publier sur GitHub</button>
+      <button class="ok" onclick="download()">⬇️ Télécharger le JSON</button>
+      <button class="ghost" onclick="copyJson()">📋 Copier le JSON</button>
+      <button class="ghost" onclick="clearAll()">✖ Tout remettre à 0</button>
+    </div>
+    <div id="status" class="status"></div>
+    <details style="margin-top:14px"><summary>Voir l'aperçu JSON</summary><pre id="preview"></pre></details>
+  </div>
+</div>
+
+<script>
+// ---- Définition des niveaux (clés = celles lues par l'indicateur) ----
+const LEVELS = [
+  ["call_wall",     "Call Wall",   "#ef4444"],
+  ["put_wall",      "Put Wall",    "#22c55e"],
+  ["vol_trigger",   "Vol Trigger", "#f59e0b"],
+  ["zero_gamma",    "Zero Gamma",  "#f1f5f9"],
+  ["large_gamma_1", "Large Gamma 1","#a855f7"],
+  ["large_gamma_2", "Large Gamma 2","#a855f7"],
+  ["large_gamma_3", "Large Gamma 3","#a855f7"],
+  ["large_gamma_4", "Large Gamma 4","#a855f7"],
+  ["combo_1",       "Combo 1",     "#38bdf8"],
+  ["combo_2",       "Combo 2",     "#38bdf8"],
+  ["combo_3",       "Combo 3",     "#38bdf8"],
+  ["combo_4",       "Combo 4",     "#38bdf8"],
+];
+const INSTR = ["ES","NQ"];
+
+// ---- Construction du formulaire ----
+const grid = document.getElementById("levelGrid");
+INSTR.forEach(inst=>{
+  const col = document.createElement("div");
+  col.innerHTML = `<h2 style="margin-top:0">${inst}</h2>`;
+  LEVELS.forEach(([key,label,color])=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<span class="dot" style="background:${color}"></span>
+      <label>${label}</label>
+      <input type="number" step="0.25" id="${inst}_${key}" placeholder="0">`;
+    col.appendChild(row);
+  });
+  grid.appendChild(col);
+});
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+$("date").value = todayISO();
+
+function buildJson(){
+  const out = { date: $("date").value || todayISO() };
+  INSTR.forEach(inst=>{
+    const block = {};
+    LEVELS.forEach(([key])=>{
+      const v = parseFloat($(`${inst}_${key}`).value);
+      block[key] = isNaN(v) ? 0 : v;
+    });
+    out[inst] = block;
+  });
+  return out;
+}
+function refreshPreview(){ $("preview").textContent = JSON.stringify(buildJson(), null, 2); }
+document.addEventListener("input", refreshPreview);
+
+function status(msg, kind){
+  const s = $("status"); s.textContent = msg;
+  s.className = "status show " + (kind||"info");
+}
+
+// ---- Config (localStorage) ----
+function cfg(){ return {
+  user:$("ghUser").value.trim(), repo:$("ghRepo").value.trim(),
+  branch:($("ghBranch").value.trim()||"main"), path:($("ghPath").value.trim()||"gamma-levels.json"),
+  token:$("ghToken").value.trim()
+};}
+function updateRawUrl(){
+  const c = cfg();
+  $("rawUrl").textContent = (c.user&&c.repo)
+    ? `https://raw.githubusercontent.com/${c.user}/${c.repo}/${c.branch}/${c.path}`
+    : "—";
+}
+function saveCfg(){
+  const c = cfg();
+  localStorage.setItem("dmtGammaCfg", JSON.stringify(c));
+  updateRawUrl();
+  status("Config enregistrée dans ce navigateur.", "good");
+}
+function restoreCfg(){
+  try{
+    const c = JSON.parse(localStorage.getItem("dmtGammaCfg")||"{}");
+    if(c.user) $("ghUser").value=c.user;
+    if(c.repo) $("ghRepo").value=c.repo;
+    if(c.branch) $("ghBranch").value=c.branch;
+    if(c.path) $("ghPath").value=c.path;
+    if(c.token) $("ghToken").value=c.token;
+  }catch(e){}
+  updateRawUrl();
+}
+["ghUser","ghRepo","ghBranch","ghPath"].forEach(id=>$(id).addEventListener("input",updateRawUrl));
+
+// ---- Actions locales ----
+function copyJson(){
+  navigator.clipboard.writeText(JSON.stringify(buildJson(),null,2))
+    .then(()=>status("JSON copié dans le presse-papier.","good"))
+    .catch(()=>status("Impossible de copier.","bad"));
+}
+function download(){
+  const blob = new Blob([JSON.stringify(buildJson(),null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "gamma-levels.json"; a.click();
+  status("Fichier gamma-levels.json téléchargé.","good");
+}
+function clearAll(){
+  INSTR.forEach(i=>LEVELS.forEach(([k])=>$(`${i}_${k}`).value=""));
+  $("date").value = todayISO(); refreshPreview();
+}
+
+// ---- Remplir depuis un JSON collé (tolérant) ----
+function fillFromPaste(){
+  let raw = $("pasteBox").value.trim();
+  if(!raw){ status("Colle d'abord le JSON de gamma flow 3.","bad"); return; }
+  // si du texte entoure le JSON, on isole le 1er objet { ... }
+  if(raw[0] !== "{"){
+    const a = raw.indexOf("{"), b = raw.lastIndexOf("}");
+    if(a>=0 && b>a) raw = raw.slice(a, b+1);
+  }
+  let json;
+  try{ json = JSON.parse(raw); }
+  catch(e){ status("JSON invalide : "+e.message,"bad"); return; }
+
+  if(json.date) $("date").value = json.date;
+  let filled = 0;
+  INSTR.forEach(i=>LEVELS.forEach(([k])=>{
+    const v = json[i] && json[i][k];
+    if(v !== undefined && v !== null && v !== 0 && !isNaN(parseFloat(v))){
+      $(`${i}_${k}`).value = v; filled++;
+    } else {
+      $(`${i}_${k}`).value = "";
+    }
+  }));
+  refreshPreview();
+  if(filled===0) status("JSON lu mais aucun niveau reconnu (vérifie les clés ES/NQ et call_wall, put_wall…).","bad");
+  else status(`✅ ${filled} niveaux remplis. Vérifie, puis clique « Publier ».`,"good");
+}
+
+// ---- UTF-8 safe base64 ----
+function toB64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function fromB64(b64){ return decodeURIComponent(escape(atob(b64.replace(/\n/g,"")))); }
+
+// ---- GitHub API ----
+async function ghGet(c){
+  const url = `https://api.github.com/repos/${c.user}/${c.repo}/contents/${c.path}?ref=${c.branch}`;
+  return fetch(url,{headers:{Authorization:`Bearer ${c.token}`,Accept:"application/vnd.github+json"}});
+}
+async function loadFromGithub(){
+  const c = cfg();
+  if(!c.user||!c.repo||!c.token){ status("Renseigne utilisateur, repo et token d'abord.","bad"); return; }
+  status("Chargement depuis GitHub…","info");
+  try{
+    const r = await ghGet(c);
+    if(r.status===404){ status("Aucun fichier encore : remplis les niveaux puis Publier.","info"); return; }
+    if(!r.ok){ status("Erreur GitHub "+r.status+" : "+(await r.text()),"bad"); return; }
+    const data = await r.json();
+    const json = JSON.parse(fromB64(data.content));
+    if(json.date) $("date").value = json.date;
+    INSTR.forEach(i=>LEVELS.forEach(([k])=>{
+      const v = json[i] && json[i][k]; $(`${i}_${k}`).value = (v&&v!==0)? v : "";
+    }));
+    refreshPreview();
+    status("Niveaux actuels chargés.","good");
+  }catch(e){ status("Erreur : "+e.message,"bad"); }
+}
+async function publish(){
+  const c = cfg();
+  if(!c.user||!c.repo||!c.token){ status("Renseigne utilisateur, repo et token d'abord (puis Enregistrer).","bad"); return; }
+  status("Publication en cours…","info");
+  try{
+    // récupère le SHA actuel si le fichier existe (nécessaire pour mettre à jour)
+    let sha = undefined;
+    const g = await ghGet(c);
+    if(g.ok){ sha = (await g.json()).sha; }
+    const url = `https://api.github.com/repos/${c.user}/${c.repo}/contents/${c.path}`;
+    const body = {
+      message: "Maj niveaux gamma "+$("date").value,
+      content: toB64(JSON.stringify(buildJson(),null,2)),
+      branch: c.branch
+    };
+    if(sha) body.sha = sha;
+    const r = await fetch(url,{method:"PUT",
+      headers:{Authorization:`Bearer ${c.token}`,Accept:"application/vnd.github+json"},
+      body:JSON.stringify(body)});
+    if(!r.ok){ status("Échec publication "+r.status+" : "+(await r.text()),"bad"); return; }
+    status("✅ Publié ! Les abonnés recevront les niveaux au prochain rafraîchissement (≈5 min).","good");
+  }catch(e){ status("Erreur : "+e.message,"bad"); }
+}
+
+restoreCfg();
+refreshPreview();
+</script>
+</body>
+</html>
