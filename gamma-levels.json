@@ -1,31 +1,31 @@
 {
-  "date": "2026-08-04",
+  "date": "2026-08-05",
   "ES": {
-    "call_wall": 7677,
+    "call_wall": 7827,
     "put_wall": 7427,
-    "vol_trigger": 7522,
-    "zero_gamma": 7470,
+    "vol_trigger": 7547,
+    "zero_gamma": 7490,
     "large_gamma_1": 8027,
     "large_gamma_2": 7027,
     "large_gamma_3": 7627,
     "large_gamma_4": 7527,
-    "combo_1": 7681,
-    "combo_2": 7650,
-    "combo_3": 7658,
-    "combo_4": 7726
+    "combo_1": 7825,
+    "combo_2": 7926,
+    "combo_3": 7802,
+    "combo_4": 7779
   },
   "NQ": {
-    "call_wall": 28675,
-    "put_wall": 28125,
-    "vol_trigger": 28655,
-    "zero_gamma": 28399,
-    "large_gamma_1": 29125,
-    "large_gamma_2": 28675,
-    "large_gamma_3": 28125,
-    "large_gamma_4": 29025,
-    "combo_1": 28672,
-    "combo_2": 28067,
-    "combo_3": 29305,
-    "combo_4": 28125
+    "call_wall": 30159,
+    "put_wall": 28159,
+    "vol_trigger": 28699,
+    "zero_gamma": 28721,
+    "large_gamma_1": 30159,
+    "large_gamma_2": 29159,
+    "large_gamma_3": 28709,
+    "large_gamma_4": 29659,
+    "combo_1": 30160,
+    "combo_2": 30368,
+    "combo_3": 29952,
+    "combo_4": 30576
   }
 }
